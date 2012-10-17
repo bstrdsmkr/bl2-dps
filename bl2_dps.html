@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset=utf-8 />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+		<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.10.0/jquery.validate.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+		<title>BL2 DPS</title>
+		<!--[if IE]>
+			<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<style>
+			.error {
+				color:#FF0000;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div data-role="page">
+			<div data-role="header">
+				<h1>Borderlands 2 Weapon DPS Calculator</h1>
+			</div><!-- /header -->
+
+			<div data-role="content">
+				<form id='gunDamageCalculator'>
+					<h2>Base Properties</h2>
+					<div data-role="fieldcontain">
+						<label for="baseGunDamage" class="ui-input-text">Base Gun Damage :</label>
+						<input name="baseGunDamage" type="text" id="txtGunDamage" value="50" class="digits ui-input-text ui-body-c ui-corner-all ui-shadow-inset" min="1" />
+					</div>
+					<div data-role="fieldcontain">
+						<label for="txtGunProjectiles" class="ui-input-text"># of Projectiles Per Cartridge :</label>
+						<input name="txtGunProjectiles" type="text" id="txtGunProjectiles" value="1" class="digits" min="1" max="25" />
+					</div>
+					<div data-role="fieldcontain">
+						<label for="txtFireRate" class="ui-input-text">Fire Rate :<sup>1,2</sup></label>
+						<input name="txtFireRate" type="text" id="txtFireRate" value="3.2" class="number" min="0" />
+					</div>
+					<div data-role="fieldcontain">
+						<label for="txtGunBulletsPerPull" class="ui-input-text">Number of Cartridges Pier Trigger Pull :</label>
+						<input name="txtGunBulletsPerPull" type="text" id="txtGunBulletsPerPull" class="digits" min="0" value="1" />
+					</div>
+					<div data-role="fieldcontain">
+						<label for="txtGunClipSize" class="ui-input-text">Clip Size :</label>
+						<input name="txtGunClipSize" type="text" id="txtGunClipSize" class="digits" min="0" value="12" />
+					</div>
+					<div data-role="fieldcontain">
+						<label for="txtReloadSpeed" class="ui-input-text">Reload Speed :</label>
+						<input name="txtReloadSpeed" type="text" id="txtReloadSpeed" class="number" min="0" value="4" />
+					</div>
+					<div data-role="fieldcontain">
+						<label for="txtAccuracy" class="ui-input-text">Accuracy :</label>
+						<input name="txtAccuracy" type="text" id="txtAccuracy" class="digits" min="0" max="100" value="90" />
+					</div>
+
+					<h2>Gun Bonuses</h2>
+					<div data-role="fieldcontain">
+						<label for="txtReloadSpeedBonus" class="ui-input-text">Reload Speed Bonus % :</label>
+						<input name="txtReloadSpeedBonus" type="text" id="txtReloadSpeedBonus" class="digits" min="0" max="100" value="0" />
+					</div>
+					<div data-role="fieldcontain">
+						<label for="txtGunDamageBonus" class="ui-input-text">Gun Damage Bonus % :</label>
+						<input name="txtGunDamageBonus" type="text" id="txtGunDamageBonus" class="digits" min="0" max="100" value="0" />
+					</div>
+
+					<h2>Elemental Effects</h2>
+					<div data-role="fieldcontain">
+						<label for="selElementalType" class="select ui-select">Elemental Type :<sup>3,4,5</sup></label>
+						<div class="ui-select">
+							<select id="selElementalType">
+								<option selected>None</option>
+								<option>Corrosive</option>
+								<option>Explosive</option>
+								<option>Incendiary</option>
+								<option>Shock</option>
+								<option>Slag</option>
+							</select>
+						</div>
+					</div>
+					<div data-role="fieldcontain">
+						<label for="txtElementalChancePercentage" class="ui-input-text">Elemental Chance % :</label>
+						<input name="txtElementalChancePercentage" type="text" id="txtElementalChancePercentage" class="digits" min="0" max="100" value="0" />
+					</div>
+					<div data-role="fieldcontain">
+						<label for="txtElementDamageRecurValue" class="ui-input-text">Elemental Damage / Second :<sup>6</sup></label>
+						<input name="txtElementDamageRecurValue" type="text" id="txtElementDamageRecurValue" class="number" min="0" value="0" />
+					</div>
+				</form>
+
+				<h2>DPS Results <sup>7</sup></h2>
+				<div class="ui-grid-a">
+					<div class="ui-block-a">
+						<div class="ui-bar ui-bar-e" style="height:70px">Total DPS :
+							<div id="totalDPSValue" style="font-size:2.5em;">
+								77.4
+							</div>
+						</div>
+					</div>
+					<div class="ui-block-b">
+						<div class="ui-bar ui-bar-e" style="height:70px">Adj. DPS :
+							<div id="adjustedDPSValue" style="font-size:2.5em;">
+								69.7
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<h2>Notes</h2>
+				<ol data-role="listview">
+					<li>If computing for a weapon that fires 'As Fast as you Can Click', you should limit to a maximum realistic click speed of 8. Using the weapon's actual fire rate will deliver an unrealistic DPS.</li>
+					<li>If computing for a weapons that 'Burst Fires When Zoomed', you should limit to a maximum realistic value speed of 6. Using the weapon's actual fire rate will deliver an unrealistic DPS.<br>
+					<li>Weapons that have 'Bonus Explosion Damage' should set Elemental Type to 'Explosive' and 'Elemental Chance Percentage' to 100%.</li>
+					<li>Elemental bonus damage source : http://borderlands.wikia.com/wiki/Elemental_Damage</li>
+					<li>Slag appears to not provide any bonus damage, nor recurring damage. It does, however, provide an undetermined amount of bonus damage on subsequent <b>non-slag</b> attacks.</li>
+					<li>Elemental effect times source : http://gaming.stackexchange.com/questions/85039/how-long-do-elemental-damage-effects-last</li>
+					<li>The Adjusted DPS metric has limited value (simply : DPS * accuracy), but offers some insight if comparing the usability of fast-shooting weapons.</li>
+				</ol>
+
+				<script>
+				jQuery(function($) {
+					var txtGunDamage = $("#txtGunDamage");
+					var txtGunProjectiles = $("#txtGunProjectiles");
+					var txtFireRate = $("#txtFireRate");
+					var txtGunBulletsPerPull = $("#txtGunBulletsPerPull");
+					var txtReloadSpeed = $("#txtReloadSpeed");
+					var txtGunClipSize = $("#txtGunClipSize");
+					var txtAccuracy = $("#txtAccuracy");
+					var txtReloadSpeedBonus = $("#txtReloadSpeedBonus");
+					var txtGunDamageBonus = $("#txtGunDamageBonus");
+					var selElementalType = $("#selElementalType");
+					var txtElementalChancePercentage = $("#txtElementalChancePercentage");
+					var txtElementDamageRecurValue = $("#txtElementDamageRecurValue");
+
+					$([
+						txtGunDamage[0],
+						txtGunProjectiles[0],
+						txtFireRate[0],
+						txtGunBulletsPerPull[0],
+						txtReloadSpeed[0],
+						txtGunClipSize[0],
+						txtAccuracy[0],
+						txtReloadSpeedBonus[0],
+						txtGunDamageBonus[0],
+						selElementalType[0],
+						txtElementalChancePercentage[0],
+						txtElementDamageRecurValue[0]
+					]).bind("change keyup keydown paste", function(e) {
+						elementalEffects = new Array();
+							elementalEffects['None'] = { bonus:0, length:0};
+							elementalEffects['Corrosive'] = { bonus:40, length:8};
+							elementalEffects['Explosive'] = { bonus:150, length:0};
+							elementalEffects['Incendiary'] = { bonus:60, length:5};
+							elementalEffects['Shock'] = { bonus:100, length:2};
+							elementalEffects['Slag'] = { bonus:0, length:8};
+
+						var reloadRate = txtReloadSpeed.val()*1 / (1 + (txtReloadSpeedBonus.val()*1 / 100));
+						var gunCoreDamage = txtGunDamage.val()*1 + (txtGunDamage.val()*1 * (txtGunDamageBonus.val()*1 / 100));
+						var gunTotalDamage = gunCoreDamage +
+						(
+							(txtElementalChancePercentage.val()*1 / 100) *
+								(
+									(txtGunDamage.val()*1 * (elementalEffects[selElementalType.val()]['bonus']*1 / 100)) +
+									(txtElementDamageRecurValue.val()*1 * elementalEffects[selElementalType.val()]['length']*1)
+								)
+						);
+						var triggerPullsInClip = Math.floor(txtGunClipSize.val()*1 / txtGunBulletsPerPull.val()*1);
+						var secondsToExpendClip = triggerPullsInClip / txtFireRate.val()*1;
+						var actualGunFireRate = 1 / ((secondsToExpendClip + reloadRate) / triggerPullsInClip);
+						var totalCoreGunDamage = (actualGunFireRate * gunTotalDamage) * txtGunProjectiles.val()*1;
+						$("#totalDPSValue").html(totalCoreGunDamage.toFixed(1));
+						$("#adjustedDPSValue").html(((txtAccuracy.val()*1 / 100) * totalCoreGunDamage).toFixed(1));
+
+						if ($("#totalDPSValue").text()=="NaN") { $("#totalDPSValue").html("Error"); }
+						if ($("#adjustedDPSValue").text()=="NaN") { $("#adjustedDPSValue").html("Error"); }
+					});
+				});
+
+				$("#gunDamageCalculator").validate();
+				</script>
+
+			</div><!-- /content -->
+		</div><!-- /page -->
+	</body>
+</html>
